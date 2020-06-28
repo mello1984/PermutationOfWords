@@ -23,14 +23,22 @@ public class Analyzer {
 
     public static void main(String[] args) throws IOException {
 //        String[] words = Files.lines(Paths.get(fileNameForTesting)).flatMap(s -> Arrays.stream(s.split("\\s+"))).toArray(String[]::new);
-        String[] words = testSequence1.split("\\s");
+        String[] words = testSequence2.split("\\s");
         check(words);
+        StringBuilder orderedWords = getLine(words);
         System.out.println("Original array - " + words.length + " words: " + Arrays.toString(words));
-        System.out.println("Changed array - " + getLine(words).toString().split("\\s").length + ": " + getLine(words).toString());
+        if (orderedWords.length() > 0)
+            System.out.println("Changed array - " + orderedWords.toString().split("\\s").length + ": " + orderedWords.toString());
 //        System.out.println(generateArray(10, 0.2));
     }
 
+    //Maybe I should make exceptions instead of messages
     private static boolean check(String... words) {
+        if (words == null || words.length == 0) {
+            System.out.println("The array of words is invalid, " + words == null ? "it's null" : "it's length is 0");
+            return false;
+        }
+
         Map<Character, Integer> firstLetters = new HashMap<>();
         Map<Character, Integer> lastLetters = new HashMap<>();
 
@@ -49,28 +57,24 @@ public class Analyzer {
                 System.out.printf("The array of words is invalid. The number of '%s' character in first letters is %d, and in last letters is %d%n", pair.getKey(), pair.getValue(), lastLetters.get(pair.getKey()));
                 return false;
             }
+        System.out.println("Verification passed, letters: " + firstLetters);
         return true;
     }
 
-    public static StringBuilder getLine(String... words) {
-        if (words == null || words.length == 0) return new StringBuilder();
-
+    private static StringBuilder getLine(String... words) {
         StringBuilder sb = new StringBuilder();
         boolean resolve = false;
-        boolean needReverse = false;
         int initialCount = 0;
-        int difSize = 0;
-        while (!resolve && !needReverse) {
+
+        while (!resolve) {
             List<String> differing = new LinkedList(Arrays.asList(Arrays.stream(words).filter(s -> Character.toLowerCase(s.charAt(0)) != Character.toLowerCase(s.charAt(s.length() - 1))).toArray(String[]::new)));
             List<String> same = new LinkedList(Arrays.asList(Arrays.stream(words).filter(s -> Character.toLowerCase(s.charAt(0)) == Character.toLowerCase(s.charAt(s.length() - 1))).toArray(String[]::new)));
 
-            int s = same.size();
-            int d = differing.size();
-            difSize = differing.size();
+            int initialSame = same.size();
+            int initialDiffering = differing.size();
             while (initialCount < differing.size() && !resolve) {
 
                 sb = new StringBuilder().append(differing.remove(initialCount));
-
                 while (same.size() > 0 || differing.size() > 0) {
                     boolean added = checkListAndAddWord(sb, same);
                     if (!added) added = checkListAndAddWord(sb, differing);
@@ -80,44 +84,17 @@ public class Analyzer {
                 if (same.size() == 0 && differing.size() == 0) resolve = true;
                 else {
                     initialCount++;
-//                    System.out.println("try: " + initialCount + ", length: " + sb.toString().split(" ").length +
-//                            " differing: " + differing.size() + " same: " + same.size() + " all worlds: " +
-//                            (sb.toString().split(" ").length + differing.size() + same.size()) +
-//                            " initial size d: " + d + " s: " + s);
+                    System.out.printf("try: %3d, length: %3d, differing: %3d, same: %3d, all worlds: %3d, initial size initialDiffering: %3d, initialSame: %3d%n",
+                            initialCount, sb.toString().split("\\s").length, differing.size(), same.size(),
+                            (sb.toString().split(" ").length + differing.size() + same.size()), initialDiffering, initialSame);
                     break;
                 }
             }
-            if (initialCount >= words.length - s) needReverse = true;
-        }
-
-        needReverse = false;
-        initialCount = difSize - 1;
-        while (!resolve && !needReverse) {
-            List<String> differing = new LinkedList(Arrays.asList(Arrays.stream(words).filter(s -> Character.toLowerCase(s.charAt(0)) != Character.toLowerCase(s.charAt(s.length() - 1))).toArray(String[]::new)));
-            List<String> same = new LinkedList(Arrays.asList(Arrays.stream(words).filter(s -> Character.toLowerCase(s.charAt(0)) == Character.toLowerCase(s.charAt(s.length() - 1))).toArray(String[]::new)));
-
-            while (initialCount >= 0 && !resolve) {
-                int s = same.size();
-                int d = differing.size();
-                sb = new StringBuilder().append(differing.remove(initialCount));
-                while (same.size() > 0 || differing.size() > 0) {
-                    boolean added = checkListAndAddWord(sb, same);
-                    if (!added) added = checkListAndAddWordReverse(sb, differing);
-                    if (!added) break;
-                }
-
-                if (same.size() == 0 && differing.size() == 0) resolve = true;
-                else {
-                    initialCount--;
-//                    System.out.println("try: " + initialCount + ", length: " + sb.toString().split(" ").length +
-//                            " differing: " + differing.size() + " same: " + same.size() + " all worlds: " +
-//                            (sb.toString().split(" ").length + differing.size() + same.size()) +
-//                            " initial size d: " + d + " s: " + s);
-                    break;
-                }
+            if (initialCount >= words.length - initialSame) {
+                System.out.println("The solution is not found");
+                return new StringBuilder();
             }
         }
-
         return sb;
     }
 
@@ -132,29 +109,10 @@ public class Analyzer {
 
             if (listFirst == sbLast || listLast == sbFirst) {
                 if (listFirst == sbLast) sb.append(" ").append(list.remove(i));
-                else sb.insert(0, list.remove(i) + " ");
+                else sb.insert(0," ").insert(0, list.remove(i));
                 next = true;
             }
             i++;
-        }
-        return next;
-    }
-
-    private static boolean checkListAndAddWordReverse(StringBuilder sb, List<String> list) {
-        boolean next = false;
-        int i = list.size() - 1;
-        while (i >= 0 && !next) {
-            char listFirst = Character.toLowerCase(list.get(i).charAt(0));
-            char listLast = Character.toLowerCase(list.get(i).charAt(list.get(i).length() - 1));
-            char sbFirst = Character.toLowerCase(sb.charAt(0));
-            char sbLast = Character.toLowerCase(sb.charAt(sb.length() - 1));
-
-            if (listFirst == sbLast || listLast == sbFirst) {
-                if (listFirst == sbLast) sb.append(" ").append(list.remove(i));
-                else sb.insert(0, list.remove(i) + " ");
-                next = true;
-            }
-            i--;
         }
         return next;
     }
@@ -181,4 +139,3 @@ public class Analyzer {
         Files.writeString(Paths.get(fileName), generateArray(countHalf, sameProbability));
     }
 }
-
