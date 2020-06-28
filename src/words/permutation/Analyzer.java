@@ -16,6 +16,7 @@ public class Analyzer {
             "Ae PG EE xQ AT YY tu XS DL TO cs Lr Xg jv jz PK kB Qo pp jj oQ eA cC Jm Ia Rh gx Wn fL QJ Mc NL TA OO tt Hg " +
             "DI Bk Iq PX yy hR ut wS jr MJ cM YP oD gH nW rr tu dd tJ Fw Oz SX XS Jt we Sw vP GW bs xg VO ao Qo we kk Pv " +
             "LN kk ew ep vZ ID xx vV";
+    private static final String testSequence4 = "a b aa ba ab";
     private static final String fileNameForTesting = "d:/test/test3.txt";
     private static final String fileNameForGeneration = "d:/test/test5.txt";
 
@@ -34,13 +35,20 @@ public class Analyzer {
         Map<Character, Integer> lastLetters = new HashMap<>();
 
         Arrays.stream(words).forEach(s -> {
-            firstLetters.merge(s.charAt(0), 1, Integer::sum);
-//            lastLetters.merge(s.charAt(s.charAt(s.length() - 1)), 1, Integer::sum);
+            firstLetters.merge(Character.toLowerCase(s.charAt(0)), 1, Integer::sum);
+            lastLetters.merge(Character.toLowerCase(s.charAt(s.length() - 1)), 1, Integer::sum);
         });
 
-        System.out.println(firstLetters);
-        System.out.println(lastLetters);
+        if (firstLetters.size() != lastLetters.size()) {
+            System.out.println("The array of words is invalid. The number of unique characters differs in the first and last character arrays");
+            return false;
+        }
 
+        for (Map.Entry<Character, Integer> pair : firstLetters.entrySet())
+            if (pair.getValue() != lastLetters.get(pair.getKey())) {
+                System.out.printf("The array of words is invalid. The number of '%s' character in first letters is %d, and in last letters is %d%n", pair.getKey(), pair.getValue(), lastLetters.get(pair.getKey()));
+                return false;
+            }
         return true;
     }
 
