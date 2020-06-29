@@ -8,6 +8,7 @@ class WordArray {
     List<Word> words;
     Map<Character, Integer> firstLetters;
     Map<Character, Integer> lastLetters;
+    List<CycleList> cycleLists;
 
     WordArray(String[] strings) throws WordArrayException {
         words = new LinkedList<>();
@@ -19,19 +20,25 @@ class WordArray {
             Word word = new Word(string);
             words.add(word);
             firstLetters.merge(word.getFirstLetter(), 1, Integer::sum);
-            lastLetters.merge(word.getFirstLetter(), 1, Integer::sum);
+            lastLetters.merge(word.getLastLetter(), 1, Integer::sum);
         }
         System.out.println(this);
-        System.out.println("================");
+        System.out.println("check===========");
         check();
+
         simplify();
         System.out.println(this);
         System.out.println("================");
+        getCycleLists();
+        System.out.println(this);
+        System.out.println("================");
+        System.out.println(cycleLists);
     }
 
     private void check() throws WordArrayException {
         if (firstLetters.size() != lastLetters.size())
-            throw new WordArrayException("The array of words is invalid. The number of unique characters differs in the first and last character arrays");
+            throw new WordArrayException(String.format("The array of words is invalid. The number of unique characters differs in the first and last character arrays\n" +
+                    "first letters: %s, last letters: %s", firstLetters, lastLetters));
 
         for (Map.Entry<Character, Integer> pair : firstLetters.entrySet()) {
             if (pair.getValue() != lastLetters.get(pair.getKey()))
@@ -112,6 +119,33 @@ class WordArray {
         }
         words.remove(w1);
         words.remove(w2);
+    }
+
+    private void getCycleLists() {
+        cycleLists = new ArrayList<>();
+        List<Word> clone = new LinkedList<>(words);
+        List<Word> out = new LinkedList<>();
+        while (clone.size() > 0) {
+            if (out.size() == 0) {
+                out.add(clone.remove(0));
+                continue;
+            }
+            for (Word w : clone) {
+                if (w.getFirstLetter() == out.get(out.size() - 1).getLastLetter()) {
+                    out.add(w);
+                    clone.remove(w);
+                    break;
+                } else if (w.getLastLetter() == out.get(0).getFirstLetter()) {
+                    out.add(0, w);
+                    clone.remove(w);
+                    break;
+                }
+            }
+            if (out.get(0).getFirstLetter() == out.get(out.size() - 1).getLastLetter()) {
+                if (out.size() > 0) cycleLists.add(new CycleList(out));
+                out = new LinkedList<>();
+            }
+        }
     }
 
     @Override
