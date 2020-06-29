@@ -6,37 +6,30 @@ class Word {
     private String string;
     private char firstLetter;
     private char lastLetter;
-    private boolean differentLetters;
 
     Word(String string) {
         this.string = string;
         firstLetter = Character.toLowerCase(string.charAt(0));
         lastLetter = Character.toLowerCase(string.charAt(string.length() - 1));
-        differentLetters = firstLetter != lastLetter;
     }
 
-    public String getString() {
+    String getString() {
         return string;
     }
 
-    public char getFirstLetter() {
+    char getFirstLetter() {
         return firstLetter;
     }
 
-    public char getLastLetter() {
+    char getLastLetter() {
         return lastLetter;
     }
 
-    public boolean isDifferentLetters() {
-        return differentLetters;
-    }
-
-    public String toFullString() {
+    String toFullString() {
         return "Word{" +
                 "string='" + string + '\'' +
                 ", firstLetter=" + firstLetter +
                 ", lastLetter=" + lastLetter +
-                ", differentLetters=" + differentLetters +
                 '}';
     }
 
@@ -56,11 +49,5 @@ class Word {
     @Override
     public int hashCode() {
         return Objects.hash(string);
-    }
-
-    class WordException extends Exception {
-        public WordException(String message) {
-            super(message);
-        }
     }
 }

@@ -17,9 +17,8 @@ public class CycleList {
 
     void regroup(char ch) {
         int first = 0;
-        while (first < list.size()) {
+        while (first++ < list.size()) {
             if (list.get(first).getFirstLetter() == ch) break;
-            first++;
         }
         List<Word> tempList = new ArrayList<>();
         list.stream().skip(first).forEachOrdered(tempList::add);
