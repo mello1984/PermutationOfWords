@@ -2,6 +2,7 @@ package words.permutation;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 class WordArray {
     List<Word> words;
@@ -17,12 +18,15 @@ class WordArray {
         for (String string : strings) {
             Word word = new Word(string);
             words.add(word);
-            if (word.isDifferentLetters()) {
-                firstLetters.merge(word.getFirstLetter(), 1, Integer::sum);
-                lastLetters.merge(word.getFirstLetter(), 1, Integer::sum);
-            }
+            firstLetters.merge(word.getFirstLetter(), 1, Integer::sum);
+            lastLetters.merge(word.getFirstLetter(), 1, Integer::sum);
         }
+        System.out.println(this);
+        System.out.println("================");
         check();
+        simplify();
+        System.out.println(this);
+        System.out.println("================");
     }
 
     private void check() throws WordArrayException {
@@ -77,6 +81,49 @@ class WordArray {
             throw new WordArrayException("The array of words isn't connected: " + newList.toString());
 
         System.out.println("Verification passed");
+    }
+
+    private void simplify() throws WordArrayException {
+        List<Word> sameWords = words.stream().filter(w -> !w.isDifferentLetters()).collect(Collectors.toList());
+        words.removeAll(sameWords);
+        for (Word sameWord : sameWords) {
+            for (Word word : words) {
+                if (word.getFirstLetter() == sameWord.getLastLetter() || word.getLastLetter() == sameWord.getFirstLetter()) {
+                    joinWords(word, sameWord);
+                    break;
+                }
+            }
+        }
+
+    }
+
+    private void joinWords(Word w1, Word w2) throws WordArrayException {
+        if (!(w1.getFirstLetter() == w2.getLastLetter()) && !(w1.getLastLetter() == w2.getFirstLetter()))
+            throw new WordArrayException(String.format("Can't join words: '%s' and '%s'", w1, w2));
+
+        if (w1.getFirstLetter() == w2.getLastLetter()) {
+            words.add(new Word(String.join(" ", w2.getString(), w1.getString())));
+            firstLetters.merge(w1.getFirstLetter(), -1, Integer::sum);
+            lastLetters.merge(w1.getFirstLetter(), -1, Integer::sum);
+        } else if (w1.getLastLetter() == w2.getFirstLetter()) {
+            words.add(new Word(String.join(" ", w1.getString(), w2.getString())));
+            firstLetters.merge(w1.getLastLetter(), -1, Integer::sum);
+            lastLetters.merge(w1.getLastLetter(), -1, Integer::sum);
+        }
+        words.remove(w1);
+        words.remove(w2);
+    }
+
+    @Override
+    public String toString() {
+        int d = 0;
+        for (Word w : words) if (w.isDifferentLetters()) d++;
+        return "WordArray@" + this.hashCode() + "{" +
+                "\ncount words = " + words.size() +
+                "\ncount differedLettersWords = " + d +
+                "\nwords = " + words +
+                "\nletters = " + firstLetters +
+                "\n}";
     }
 
     class WordArrayException extends Exception {

@@ -15,12 +15,6 @@ class Word {
         differentLetters = firstLetter != lastLetter;
     }
 
-    Word join(Word word) throws WordException {
-        if (lastLetter == word.firstLetter) return new Word(String.join(" ", this.string, word.string));
-        else if (firstLetter == word.lastLetter) return new Word(String.join(" ", word.string, this.string));
-        else throw new WordException(String.format("Can't join words: '%s' and '%s'", this.string, word.string));
-    }
-
     public String getString() {
         return string;
     }
@@ -35,6 +29,15 @@ class Word {
 
     public boolean isDifferentLetters() {
         return differentLetters;
+    }
+
+    public String toFullString() {
+        return "Word{" +
+                "string='" + string + '\'' +
+                ", firstLetter=" + firstLetter +
+                ", lastLetter=" + lastLetter +
+                ", differentLetters=" + differentLetters +
+                '}';
     }
 
     @Override
