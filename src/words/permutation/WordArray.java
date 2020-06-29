@@ -22,18 +22,9 @@ class WordArray {
             firstLetters.merge(word.getFirstLetter(), 1, Integer::sum);
             lastLetters.merge(word.getLastLetter(), 1, Integer::sum);
         }
-        System.out.println(this);
-        System.out.println("check===========");
         check();
-
         simplify();
-        System.out.println(this);
-        System.out.println("================");
         getCycleLists();
-        System.out.println(this);
-        System.out.println("================");
-        System.out.println(cycleLists);
-        System.out.println("================");
         getResultFromCycleLists();
     }
 
@@ -88,8 +79,6 @@ class WordArray {
         }
         if (newList.size() > 1)
             throw new WordArrayException("The array of words isn't connected: " + newList.toString());
-
-        System.out.println("Verification passed");
     }
 
     private void simplify() throws WordArrayException {
@@ -151,8 +140,6 @@ class WordArray {
     }
 
     private void getResultFromCycleLists() {
-        System.out.println("begin getResultFromCycleLists: " + cycleLists);
-
         while (cycleLists.size() > 1) {
             for (int i = 1; i < cycleLists.size(); i++) {
                 int I = i;
@@ -163,7 +150,6 @@ class WordArray {
 
             }
         }
-        System.out.println("end getResultFromCycleLists: " + cycleLists);
     }
 
     private void joinCycleLists(CycleList c1, CycleList c2) {
@@ -172,17 +158,18 @@ class WordArray {
 
         for (int i = 0; i < c1.list.size(); i++) {
             if (c1.list.get(i).getLastLetter() == joinChar) {
-                System.out.println("c1: " + c1);
-                System.out.println("c2: " + c2);
-                System.out.println("i: " + i + ", ch: " + joinChar);
-                c1.list.addAll(i+1, c2.list);
-                System.out.println("c1+c2: " + c1);
-
+                c1.list.addAll(i + 1, c2.list);
                 c1.characterSet.addAll(c2.characterSet);
                 cycleLists.remove(c2);
                 break;
             }
         }
+    }
+
+    public String getResultString() {
+        StringBuilder out = new StringBuilder();
+        cycleLists.get(0).list.forEach(w -> out.append(" ").append(w.getString()));
+        return out.deleteCharAt(0).toString();
     }
 
     @Override

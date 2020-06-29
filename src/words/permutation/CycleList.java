@@ -16,7 +16,6 @@ public class CycleList {
     }
 
     void regroup(char ch) {
-        System.out.println("begin regroup: " + ch + ": " + list);
         int first = 0;
         while (first < list.size()) {
             if (list.get(first).getFirstLetter() == ch) break;
@@ -26,7 +25,6 @@ public class CycleList {
         list.stream().skip(first).forEachOrdered(tempList::add);
         list.stream().limit(first).forEachOrdered(tempList::add);
         list = tempList;
-        System.out.println("end regroup: " + ch + ": " + list);
     }
 
     @Override

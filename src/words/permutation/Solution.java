@@ -1,5 +1,10 @@
 package words.permutation;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+
 public class Solution {
     private static final String testSequence1 = "ab aa ba ac ab ca cc Aa Ab ba bA aC CC bb Ca BB";
     private static final String testSequence2 = "rj KK YB Jr CC jr JJ lm JK DD dD rr dd MM BY Cr mm DU GG rC YY VG Mr KJ Dd GV rJ UD rM ml";
@@ -15,6 +20,61 @@ public class Solution {
 
     public static void main(String[] args) throws WordArray.WordArrayException {
         WordArray wordArray = new WordArray(testSequence3.split(" "));
-//        System.out.println(wordArray);
+        String result = wordArray.getResultString();
+        System.out.println("Result: " + result);
+        System.out.println("Check: " + check(result));
+
+        System.out.println("=====================================================");
+        String newString = generateArray(5);
+        System.out.println("New String: " + newString);
+        wordArray = new WordArray(newString.split(" "));
+        result = wordArray.getResultString();
+        System.out.println("Result: " + result);
+        System.out.println("Check: " + check(result));
+
     }
+
+    private static boolean check(String string) {
+        if (string == null || string.length() == 0) return false;
+        if (Character.toLowerCase(string.charAt(0)) != Character.toLowerCase(string.charAt(string.length() - 1)))
+            return false;
+
+        String[] strings = string.split(" ");
+        for (int i = 0; i < strings.length - 1; i++) {
+            char l = Character.toLowerCase(strings[i].charAt(strings[i].length() - 1));
+            char f = Character.toLowerCase(strings[i + 1].charAt(0));
+            if (l != f) return false;
+        }
+        return true;
+    }
+
+    private static String generateArray(int countThird) {
+        boolean out = false;
+        String result = "";
+        while (!out) {
+            List<String> list = null;
+            Random random = new Random();
+            list = new LinkedList<>();
+            for (int i = 0; i < countThird; i++) {
+                int x = (random.nextInt(26) + 65) + (Math.random() > 0.5 ? 32 : 0);
+                int y = (random.nextInt(26) + 65) + (Math.random() > 0.5 ? 32 : 0);
+                list.add(String.valueOf((char) x) + (char) y);
+                list.add(String.valueOf((char) y) + (char) x);
+                list.add(String.valueOf((char) x) + (char) x);
+            }
+            Collections.shuffle(list);
+
+            String[] strings = new String[list.size()];
+            WordArray wordArray = null;
+            try {
+                wordArray = new WordArray(list.toArray(strings));
+                if (check(wordArray.getResultString())) result = wordArray.getResultString();
+                out = true;
+            } catch (WordArray.WordArrayException e) {
+                //Nothing
+            }
+        }
+        return result;
+    }
+
 }
