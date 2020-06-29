@@ -11,9 +11,10 @@ public class Solution {
     private static final String testSequence4 = "a b aa ba ab";
     private static final String testSequence5 = "as b aa ba ab";
     private static final String testSequence6 = "dd ab aa ba ac ab ca cc Aa Ab ba bA aC CC bb Ca BB ad da";
+    private static final String testSequence7 = "ab cd ac";
 
     public static void main(String[] args) throws WordArray.WordArrayException {
-        WordArray wordArray = new WordArray(testSequence2.split(" "));
+        WordArray wordArray = new WordArray(testSequence3.split(" "));
         System.out.println(wordArray.words);
         System.out.println(wordArray.firstLetters);
         System.out.println(wordArray.lastLetters);

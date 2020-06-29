@@ -35,26 +35,46 @@ class WordArray {
                         pair.getKey(), pair.getValue(), lastLetters.get(pair.getKey())));
         }
 
-        // Здесь нужна проверка на связность
-        List<Set<Character>> list = new ArrayList<>();
+        // Здесь проходит проверка на связность
+        List<Set<Character>> list = new LinkedList<>();
         for (Word word : words) {
             AtomicBoolean next = new AtomicBoolean(false);
-            while (!next.get()) {
-                list.forEach(set -> {
-                    if (set.contains(word.getFirstLetter()) || set.contains(word.getLastLetter())) {
-                        set.add(word.getFirstLetter());
-                        set.add(word.getLastLetter());
-                        next.set(true);
-                    }
-                });
-                if (!next.get()) {
-                    list.add(new HashSet<>(Arrays.asList(word.getFirstLetter(), word.getLastLetter())));
+            list.forEach(set -> {
+                if (set.contains(word.getFirstLetter()) || set.contains(word.getLastLetter())) {
+                    set.add(word.getFirstLetter());
+                    set.add(word.getLastLetter());
                     next.set(true);
                 }
+            });
+            if (!next.get()) {
+                list.add(new HashSet<>(Arrays.asList(word.getFirstLetter(), word.getLastLetter())));
+                next.set(true);
             }
         }
 
-        list.forEach(System.out::println);
+        List<Set<Character>> newList = new LinkedList<>();
+        while (list.size() > 0) {
+            for (Set<Character> set : newList) {
+                boolean repeat = true;
+                while (repeat) {
+                    repeat = false;
+                    Iterator<Set<Character>> it = list.iterator();
+                    while (it.hasNext()) {
+                        Set<Character> intersectSet = new HashSet<>(set);
+                        Set<Character> nextSet = new HashSet<>(it.next());
+                        intersectSet.retainAll(nextSet);
+                        if (intersectSet.size() > 0) {
+                            set.addAll(nextSet);
+                            it.remove();
+                            repeat = true;
+                        }
+                    }
+                }
+            }
+            if (list.size() > 0) newList.add(list.remove(0));
+        }
+        if (newList.size() > 1)
+            throw new WordArrayException("The array of words isn't connected: " + newList.toString());
 
         System.out.println("Verification passed");
     }
