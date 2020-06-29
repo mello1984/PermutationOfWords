@@ -1,22 +1,32 @@
 package words.permutation;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CycleList {
     List<Word> list;
-    Map<Character, Integer> firstLetters;
-    Map<Character, Integer> lastLetters;
+    Set<Character> characterSet;
 
     public CycleList(List<Word> list) {
-        this.list = list;
-        firstLetters = new HashMap<>();
-        lastLetters = new HashMap<>();
+        this.list = new ArrayList<>(list);
+        characterSet = new HashSet<>();
         list.forEach(w -> {
-            firstLetters.merge(w.getFirstLetter(), 1, Integer::sum);
-            lastLetters.merge(w.getLastLetter(), 1, Integer::sum);
+            characterSet.add(w.getFirstLetter());
+            characterSet.add(w.getLastLetter());
         });
+    }
+
+    void regroup(char ch) {
+        System.out.println("begin regroup: " + ch + ": " + list);
+        int first = 0;
+        while (first < list.size()) {
+            if (list.get(first).getFirstLetter() == ch) break;
+            first++;
+        }
+        List<Word> tempList = new ArrayList<>();
+        list.stream().skip(first).forEachOrdered(tempList::add);
+        list.stream().limit(first).forEachOrdered(tempList::add);
+        list = tempList;
+        System.out.println("end regroup: " + ch + ": " + list);
     }
 
     @Override

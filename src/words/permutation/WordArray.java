@@ -33,6 +33,8 @@ class WordArray {
         System.out.println(this);
         System.out.println("================");
         System.out.println(cycleLists);
+        System.out.println("================");
+        getResultFromCycleLists();
     }
 
     private void check() throws WordArrayException {
@@ -144,6 +146,41 @@ class WordArray {
             if (out.get(0).getFirstLetter() == out.get(out.size() - 1).getLastLetter()) {
                 if (out.size() > 0) cycleLists.add(new CycleList(out));
                 out = new LinkedList<>();
+            }
+        }
+    }
+
+    private void getResultFromCycleLists() {
+        System.out.println("begin getResultFromCycleLists: " + cycleLists);
+
+        while (cycleLists.size() > 1) {
+            for (int i = 1; i < cycleLists.size(); i++) {
+                int I = i;
+                if (cycleLists.get(0).characterSet.stream().anyMatch(c -> cycleLists.get(I).characterSet.contains(c))) {
+                    joinCycleLists(cycleLists.get(0), cycleLists.get(i));
+                    break;
+                }
+
+            }
+        }
+        System.out.println("end getResultFromCycleLists: " + cycleLists);
+    }
+
+    private void joinCycleLists(CycleList c1, CycleList c2) {
+        char joinChar = c1.characterSet.stream().filter(c -> c2.characterSet.contains(c)).findFirst().get();
+        if (c2.list.get(0).getFirstLetter() != joinChar) c2.regroup(joinChar);
+
+        for (int i = 0; i < c1.list.size(); i++) {
+            if (c1.list.get(i).getLastLetter() == joinChar) {
+                System.out.println("c1: " + c1);
+                System.out.println("c2: " + c2);
+                System.out.println("i: " + i + ", ch: " + joinChar);
+                c1.list.addAll(i+1, c2.list);
+                System.out.println("c1+c2: " + c1);
+
+                c1.characterSet.addAll(c2.characterSet);
+                cycleLists.remove(c2);
+                break;
             }
         }
     }

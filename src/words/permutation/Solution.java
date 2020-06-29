@@ -14,7 +14,7 @@ public class Solution {
     private static final String testSequence7 = "ab cd ac";
 
     public static void main(String[] args) throws WordArray.WordArrayException {
-        WordArray wordArray = new WordArray(testSequence6.split(" "));
+        WordArray wordArray = new WordArray(testSequence3.split(" "));
 //        System.out.println(wordArray);
     }
 }
