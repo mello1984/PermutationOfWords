@@ -4,11 +4,10 @@ import java.util.*;
 
 public class CycleList {
     List<Word> list;
-    Set<Character> characterSet;
+    Set<Character> characterSet = new HashSet<>();
 
     public CycleList(List<Word> list) {
         this.list = new ArrayList<>(list);
-        characterSet = new HashSet<>();
         list.forEach(w -> {
             characterSet.add(w.getFirstLetter());
             characterSet.add(w.getLastLetter());

@@ -2,6 +2,7 @@ package words.permutation;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 class WordArray {
     private List<Word> words;
@@ -11,12 +12,51 @@ class WordArray {
         words = new LinkedList<>();
         if (strings == null) throw new WordArrayException("The array of words is invalid: it's null");
         Arrays.stream(strings).forEach(s -> words.add(new Word(s)));
-        check();
+        checkWordsArray();
         getCycleLists();
         getResultFromCycleLists();
     }
 
-    private void check() throws WordArrayException {
+    private boolean checkWordsArray() throws WordArrayException {
+        checkLetters();
+        checkWordsArrayConnectivity();
+        return true;
+    }
+
+    private boolean checkWordsArrayConnectivity() throws WordArrayException {
+        List<Set<Character>> list = new ArrayList<>();
+        Set<Character> set = new HashSet<>();
+        for (Word word : words) {
+            if (word.getFirstLetter() == word.getLastLetter()) continue;
+
+            boolean containFirst = set.contains(word.getFirstLetter());
+            boolean containSecond = set.contains(word.getLastLetter());
+            set.add(word.getFirstLetter());
+            set.add(word.getLastLetter());
+
+            if (!containFirst && !containSecond) {
+                list.add(new HashSet<>(Arrays.asList(word.getFirstLetter(), word.getLastLetter())));
+            } else if (!containFirst || !containSecond) {
+                list.forEach(s -> {
+                    if (s.contains(word.getFirstLetter())) s.add(word.getLastLetter());
+                    if (s.contains(word.getLastLetter())) s.add(word.getFirstLetter());
+                });
+            } else {
+                List<Set<Character>> first = list.stream().filter(s -> s.contains(word.getFirstLetter())).collect(Collectors.toList());
+                List<Set<Character>> last = list.stream().filter(s -> s.contains(word.getLastLetter())).collect(Collectors.toList());
+                Set<Character> result = new HashSet<>(first.get(0));
+                result.addAll(last.get(0));
+                list.remove(first.get(0));
+                list.remove(last.get(0));
+                list.add(result);
+            }
+        }
+
+        if (list.size() > 1) throw new WordArrayException("The array of words isn't connected: " + list.toString());
+        return true;
+    }
+
+    private boolean checkLetters() throws WordArrayException {
         Map<Character, Integer> firstLetters = new HashMap<>();
         Map<Character, Integer> lastLetters = new HashMap<>();
         words.forEach(w -> {
@@ -32,46 +72,7 @@ class WordArray {
             throw new WordArrayException(String.format("The array of words is invalid. The array of first characters does not match the array of last characters\n" +
                     "first letters: %s, last letters: %s", firstLetters, lastLetters));
 
-        // Здесь проходит проверка на связность
-        List<Set<Character>> list = new LinkedList<>();
-        for (Word word : words) {
-            AtomicBoolean next = new AtomicBoolean(false);
-            list.forEach(set -> {
-                if (set.contains(word.getFirstLetter()) || set.contains(word.getLastLetter())) {
-                    set.add(word.getFirstLetter());
-                    set.add(word.getLastLetter());
-                    next.set(true);
-                }
-            });
-            if (!next.get()) {
-                list.add(new HashSet<>(Arrays.asList(word.getFirstLetter(), word.getLastLetter())));
-                next.set(true);
-            }
-        }
-
-        List<Set<Character>> newList = new LinkedList<>();
-        while (list.size() > 0) {
-            for (Set<Character> set : newList) {
-                boolean repeat = true;
-                while (repeat) {
-                    repeat = false;
-                    Iterator<Set<Character>> it = list.iterator();
-                    while (it.hasNext()) {
-                        Set<Character> intersectSet = new HashSet<>(set);
-                        Set<Character> nextSet = new HashSet<>(it.next());
-                        intersectSet.retainAll(nextSet);
-                        if (intersectSet.size() > 0) {
-                            set.addAll(nextSet);
-                            it.remove();
-                            repeat = true;
-                        }
-                    }
-                }
-            }
-            if (list.size() > 0) newList.add(list.remove(0));
-        }
-        if (newList.size() > 1)
-            throw new WordArrayException("The array of words isn't connected: " + newList.toString());
+        return true;
     }
 
     private void getCycleLists() {
@@ -154,33 +155,41 @@ class WordArray {
     }
 }
 
-//    private void simplify() throws WordArrayException {
-//        List<Word> sameWords = words.stream().filter(w -> !w.isDifferentLetters()).collect(Collectors.toList());
-//        words.removeAll(sameWords);
-//        for (Word sameWord : sameWords) {
-//            for (Word word : words) {
-//                if (word.getFirstLetter() == sameWord.getLastLetter() || word.getLastLetter() == sameWord.getFirstLetter()) {
-//                    joinWords(word, sameWord);
-//                    break;
+//    private boolean checkWordsArrayConnectivity() throws WordArrayException {
+//        // Здесь проходит проверка на связность
+//        List<Set<Character>> list = new LinkedList<>();
+//        for (Word word : words) {
+//            AtomicBoolean next = new AtomicBoolean(false);
+//            list.forEach(set -> {
+//                if (set.contains(word.getFirstLetter()) || set.contains(word.getLastLetter())) {
+//                    set.add(word.getFirstLetter());
+//                    set.add(word.getLastLetter());
+//                    next.set(true);
+//                }
+//            });
+//            if (!next.get()) list.add(new HashSet<>(Arrays.asList(word.getFirstLetter(), word.getLastLetter())));
+//        }
+//
+//        List<Set<Character>> newList = new LinkedList<>();
+//        while (list.size() > 0) {
+//            for (Set<Character> set : newList) {
+//                boolean repeat = true;
+//                while (repeat) {
+//                    repeat = false;
+//                    Iterator<Set<Character>> it = list.iterator();
+//                    while (it.hasNext()) {
+//                        Set<Character> nextSet = new HashSet<>(it.next());
+//                        if (set.stream().anyMatch(nextSet::contains)) {
+//                            set.addAll(nextSet);
+//                            it.remove();
+//                            repeat = true;
+//                        }
+//                    }
 //                }
 //            }
+//            if (list.size() > 0) newList.add(list.remove(0));
 //        }
-//
-//    }
-
-//    private void joinWords(Word w1, Word w2) throws WordArrayException {
-//        if (!(w1.getFirstLetter() == w2.getLastLetter()) && !(w1.getLastLetter() == w2.getFirstLetter()))
-//            throw new WordArrayException(String.format("Can't join words: '%s' and '%s'", w1, w2));
-//
-//        if (w1.getFirstLetter() == w2.getLastLetter()) {
-//            words.add(new Word(String.join(" ", w2.getString(), w1.getString())));
-//            firstLetters.merge(w1.getFirstLetter(), -1, Integer::sum);
-//            lastLetters.merge(w1.getFirstLetter(), -1, Integer::sum);
-//        } else if (w1.getLastLetter() == w2.getFirstLetter()) {
-//            words.add(new Word(String.join(" ", w1.getString(), w2.getString())));
-//            firstLetters.merge(w1.getLastLetter(), -1, Integer::sum);
-//            lastLetters.merge(w1.getLastLetter(), -1, Integer::sum);
-//        }
-//        words.remove(w1);
-//        words.remove(w2);
+//        if (newList.size() > 1)
+//            throw new WordArrayException("The array of words isn't connected: " + newList.toString());
+//        return true;
 //    }
