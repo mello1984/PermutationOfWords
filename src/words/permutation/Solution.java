@@ -1,6 +1,6 @@
 package words.permutation;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -15,6 +15,7 @@ public class Solution {
     private static final String errorSequence1 = "ab cd ac";
     private static final String errorSequence2 = "ab ba ab";
     private static final String errorSequence3 = "rj KK YB Jr CC jr JJ lm JK DD dD rr dd MM BY Cr mm DU GG rC YY VG Mr KJ Dd GV rJ UD rM ml";
+    private static final String errorSequence4 = "";
 
 
     public static void main(String[] args) throws WordArray.WordArrayException {
@@ -56,6 +57,12 @@ public class Solution {
 
         try {
             wordArray = new WordArray(errorSequence3.split(" "));
+        } catch (WordArray.WordArrayException e) {
+            System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage());
+        }
+
+        try {
+            wordArray = new WordArray(errorSequence4.split(" "));
         } catch (WordArray.WordArrayException e) {
             System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage());
         }
