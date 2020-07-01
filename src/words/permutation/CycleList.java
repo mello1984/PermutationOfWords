@@ -2,7 +2,7 @@ package words.permutation;
 
 import java.util.*;
 
-public class CycleList {
+class CycleList {
     List<Word> list;
     Set<Character> characterSet = new HashSet<>();
 

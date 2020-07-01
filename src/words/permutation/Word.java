@@ -3,9 +3,9 @@ package words.permutation;
 import java.util.Objects;
 
 class Word {
-    private String string;
-    private char firstLetter;
-    private char lastLetter;
+    private final String string;
+    private final char firstLetter;
+    private final char lastLetter;
 
     Word(String string) {
         this.string = string;
