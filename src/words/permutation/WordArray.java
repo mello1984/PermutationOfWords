@@ -48,11 +48,11 @@ class WordArray {
         });
 
         if (firstLetters.size() != lastLetters.size())
-            throw new WordArrayException(String.format("The array of words is invalid. The number of unique characters differs in the first and last character arrays" +
+            throw new WordArrayException(String.format("The array of words is invalid. The number of unique characters differs in the first and last character arrays " +
                     "first letters: %s, last letters: %s", firstLetters, lastLetters));
 
         if (firstLetters.entrySet().stream().anyMatch(x -> !x.getValue().equals(lastLetters.get(x.getKey()))))
-            throw new WordArrayException(String.format("The array of words is invalid. The array of first characters does not match the array of last characters" +
+            throw new WordArrayException(String.format("The array of words is invalid. The array of first characters does not match the array of last characters " +
                     "first letters: %s, last letters: %s", firstLetters, lastLetters));
     }
 
@@ -177,40 +177,5 @@ class WordArray {
         }
     }
 
-    private static class Word {
-        private final String string;
-        private final char firstLetter;
-        private final char lastLetter;
 
-        Word(String string) {
-            this.string = string;
-            firstLetter = Character.toLowerCase(string.charAt(0));
-            lastLetter = Character.toLowerCase(string.charAt(string.length() - 1));
-        }
-
-        String getString() {
-            return string;
-        }
-
-        char getFirstLetter() {
-            return firstLetter;
-        }
-
-        char getLastLetter() {
-            return lastLetter;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Word word = (Word) o;
-            return string.equals(word.string);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(string);
-        }
-    }
 }
