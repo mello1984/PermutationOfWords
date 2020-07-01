@@ -1,9 +1,10 @@
 package words.permutation;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Solution {
     private static final String testSequence1 = "ab aa ba ac ab ca cc Aa Ab ba bA aC CC bb Ca BB";
@@ -19,59 +20,40 @@ public class Solution {
 
 
     public static void main(String[] args) throws WordArray.WordArrayException {
-        WordArray wordArray = new WordArray(testSequence1.split(" "));
+        testString(testSequence1, 1);
+        testString(testSequence2, 2);
+        testString(testSequence3, 3);
+        testString(testSequence4, 4);
+        testString(testSequence5, 5);
+        testString(testSequence6, 6);
+
+        testErrorString(errorSequence1, 1);
+        testErrorString(errorSequence2, 2);
+        testErrorString(errorSequence3, 3);
+        testErrorString(errorSequence4, 4);
+
+        long start = System.nanoTime();
+        List<String> newList = generateArrayList(10_000);
+        Collections.shuffle(newList);
+        long generatingTime = (System.nanoTime() - start) / 1_000_000;
+        System.out.println(String.format("\nList generated, words: %d: %s", newList.size(), newList));
+        testString(String.join(" ", newList), newList.size());
+        long checkTime = (System.nanoTime() - start - generatingTime) / 1_000_000;
+        System.out.printf("generatingTime, ms: %d, checkTime, ms: %d, all time: %d", generatingTime, checkTime, generatingTime + checkTime);
+    }
+
+    private static void testString(String testSequence, int n) throws WordArray.WordArrayException {
+        WordArray wordArray = new WordArray(testSequence.split(" "));
         String result = wordArray.getResultString();
-        System.out.println("Check1: " + check(result) + ", words: " + result.split(" ").length + " (" + testSequence1.split(" ").length + ")" + ", result: " + result);
+        System.out.println(String.format("Check%d: %b, words: %d (%d), result: %s", n, check(result), result.split(" ").length, testSequence.split(" ").length, result));
+    }
 
-        wordArray = new WordArray(testSequence2.split(" "));
-        result = wordArray.getResultString();
-        System.out.println("Check2: " + check(result) + ", words: " + result.split(" ").length + " (" + testSequence2.split(" ").length + ")" + ", result: " + result);
-
-        wordArray = new WordArray(testSequence3.split(" "));
-        result = wordArray.getResultString();
-        System.out.println("Check3: " + check(result) + ", words: " + result.split(" ").length + " (" + testSequence3.split(" ").length + ")" + ", result: " + result);
-
-        wordArray = new WordArray(testSequence4.split(" "));
-        result = wordArray.getResultString();
-        System.out.println("Check4: " + check(result) + ", words: " + result.split(" ").length + " (" + testSequence4.split(" ").length + ")" + ", result: " + result);
-
-        wordArray = new WordArray(testSequence5.split(" "));
-        result = wordArray.getResultString();
-        System.out.println("Check5: " + check(result) + ", words: " + result.split(" ").length + " (" + testSequence5.split(" ").length + ")" + ", result: " + result);
-
-        wordArray = new WordArray(testSequence6.split(" "));
-        result = wordArray.getResultString();
-        System.out.println("Check6: " + check(result) + ", words: " + result.split(" ").length + " (" + testSequence6.split(" ").length + ")" + ", result: " + result);
-
+    private static void testErrorString(String errorSequence, int n) {
         try {
-            wordArray = new WordArray(errorSequence1.split(" "));
+            WordArray wordArray = new WordArray(errorSequence.split(" "));
         } catch (WordArray.WordArrayException e) {
-            System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage());
+            System.out.println(String.format("ErrorCheck%d: %s: %s", n, e.getClass().getSimpleName(), e.getMessage()));
         }
-
-        try {
-            wordArray = new WordArray(errorSequence2.split(" "));
-        } catch (WordArray.WordArrayException e) {
-            System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage());
-        }
-
-        try {
-            wordArray = new WordArray(errorSequence3.split(" "));
-        } catch (WordArray.WordArrayException e) {
-            System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage());
-        }
-
-        try {
-            wordArray = new WordArray(errorSequence4.split(" "));
-        } catch (WordArray.WordArrayException e) {
-            System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage());
-        }
-
-//        System.out.println("=====================================================");
-//        List<String> newList = generateArrayList(20);
-//        System.out.println(newList);
-//        Collections.shuffle(newList);
-//        System.out.println(newList);
     }
 
     private static boolean check(String string) {
@@ -89,34 +71,43 @@ public class Solution {
     }
 
     private static List<String> generateArrayList(int countThird) {
-        boolean out = false;
-        List<String> result = null;
-        int count = 0;
-        while (!out) {
-            List<String> list = null;
-            Random random = new Random();
-            list = new LinkedList<>();
-            for (int i = 0; i < countThird; i++) {
-                int x = (random.nextInt(26) + 65) + (Math.random() > 0.5 ? 32 : 0);
-                int y = (random.nextInt(26) + 65) + (Math.random() > 0.5 ? 32 : 0);
-                list.add(String.valueOf((char) x) + (char) y);
-                list.add(String.valueOf((char) y) + (char) x);
-                list.add(String.valueOf((char) x) + (char) x);
-            }
+        List<String> result = new LinkedList<>();
 
-            String[] strings = new String[list.size()];
-            WordArray wordArray = null;
-            try {
-                wordArray = new WordArray(list.toArray(strings));
-                if (check(wordArray.getResultString())) result = wordArray.getResultListStrings();
-                out = true;
-            } catch (WordArray.WordArrayException e) {
-                count++;
-                if (count % 100 == 0) System.out.println(count);
-            }
+        int treshold = 7000;
+        if (countThird > treshold) {
+            result.addAll(generateArrayList(treshold));
+            countThird -= treshold;
+            generateArrayList(countThird);
         }
-        System.out.println(count);
+
+        boolean out = false;
+        while (!out) {
+            List<String> list = generateList(countThird);
+            out = checkGeneratedList(list);
+            if (out) result.addAll(list);
+        }
         return result;
+    }
+
+    private static boolean checkGeneratedList(List<String> list) {
+        try {
+            if (check(new WordArray(list).getResultString())) return true;
+        } catch (WordArray.WordArrayException ignored) {
+        }
+        return false;
+    }
+
+    private static List<String> generateList(int countThird) {
+        Random random = new Random();
+        List<String> list = new LinkedList<>();
+        for (int i = 0; i < countThird; i++) {
+            int x = (random.nextInt(26) + 65) + (Math.random() > 0.5 ? 32 : 0);
+            int y = (random.nextInt(26) + 65) + (Math.random() > 0.5 ? 32 : 0);
+            list.add(String.valueOf((char) x) + (char) y);
+            list.add(String.valueOf((char) y) + (char) x);
+            list.add(String.valueOf((char) x) + (char) x);
+        }
+        return list;
     }
 
 }

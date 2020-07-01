@@ -5,21 +5,38 @@ import java.util.stream.Collectors;
 
 class WordArray {
     private List<Word> words;
-    private List<String> strings;
+    private List<String> stringList;
 
     WordArray(String[] strings) throws WordArrayException {
-        if (strings == null) throw new WordArrayException("The array of words is invalid: it's null");
-        if (Arrays.equals(strings, new String[]{""}))
-            throw new WordArrayException("The array of words is invalid: it's {\"\"}");
+        checkInput(strings);
         words = new LinkedList<>();
         Arrays.stream(strings).forEach(string -> words.add(new Word(string)));
         checkWordsArray();
         generateResultLists();
     }
 
+    WordArray(List<String> stringList) throws WordArrayException {
+        checkInput(stringList);
+        words = new LinkedList<>();
+        stringList.forEach(string -> words.add(new Word(string)));
+        checkWordsArray();
+        generateResultLists();
+    }
+
+    private void checkInput(String[] strings) throws WordArrayException {
+        if (strings == null) throw new WordArrayException("The array of words is invalid: it's null");
+        if (Arrays.equals(strings, new String[]{""}))
+            throw new WordArrayException("The array of words is invalid: it's {\"\"}");
+    }
+
+    private void checkInput(List<String> stringList) throws WordArrayException {
+        if (stringList == null) throw new WordArrayException("The list of words is invalid: it's null");
+        if (stringList.size() == 0) throw new WordArrayException("The list of words is invalid: it's size is 0");
+    }
+
     private void checkWordsArray() throws WordArrayException {
         checkLetters();
-        checkWordsArrayConnectivity();
+        checkConnectivity();
     }
 
     private void checkLetters() throws WordArrayException {
@@ -39,7 +56,7 @@ class WordArray {
                     "first letters: %s, last letters: %s", firstLetters, lastLetters));
     }
 
-    private void checkWordsArrayConnectivity() throws WordArrayException {
+    private void checkConnectivity() throws WordArrayException {
         List<Set<Character>> list = new ArrayList<>();
         Set<Character> set = new HashSet<>();
         for (Word word : words) {
@@ -73,8 +90,8 @@ class WordArray {
 
     private void generateResultLists() {
         words = getResultFromCycleLists(getCycleLists());
-        strings = new ArrayList<>(words.size());
-        words.forEach(word -> strings.add(word.getString()));
+        stringList = new ArrayList<>(words.size());
+        words.forEach(word -> stringList.add(word.getString()));
     }
 
     private List<CycleList> getCycleLists() {
@@ -120,11 +137,11 @@ class WordArray {
     }
 
     public List<String> getResultListStrings() {
-        return strings;
+        return stringList;
     }
 
     public String[] getResultArrayStrings() {
-        return strings.toArray(new String[0]);
+        return stringList.toArray(new String[0]);
     }
 
     public String getResultString() {
@@ -181,11 +198,6 @@ class WordArray {
 
         char getLastLetter() {
             return lastLetter;
-        }
-
-        @Override
-        public String toString() {
-            return string;
         }
 
         @Override
