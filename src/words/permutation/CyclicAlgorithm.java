@@ -3,11 +3,11 @@ package words.permutation;
 import java.util.*;
 import java.util.stream.Collectors;
 
-class WordArray {
+class CyclicAlgorithm {
     private List<Word> words;
     private List<String> stringList;
 
-    WordArray(String[] strings) throws WordArrayException {
+    CyclicAlgorithm(String[] strings) throws WordArrayException {
         checkInput(strings);
         words = new LinkedList<>();
         Arrays.stream(strings).forEach(string -> words.add(new Word(string)));
@@ -15,7 +15,7 @@ class WordArray {
         generateResultLists();
     }
 
-    WordArray(List<String> stringList) throws WordArrayException {
+    CyclicAlgorithm(List<String> stringList) throws WordArrayException {
         checkInput(stringList);
         words = new LinkedList<>();
         stringList.forEach(string -> words.add(new Word(string)));
